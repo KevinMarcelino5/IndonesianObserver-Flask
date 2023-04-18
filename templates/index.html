@@ -1,5 +1,9 @@
 <h1>Hello World</h1>
 
+{% extends 'base.html' %}
+
+{% block content %}
+
 <p>This is {{ first_name }} first webpage</p>
 
 <p>{{stuff | safe}}</p>
@@ -13,8 +17,10 @@
     {% else %}    
         {{ toping }} <br>
     {% endif %}
-    
+
 {% endfor %}
 
 <br><br>
 {{ favorite_martabak.1 }}
+
+{% endblock %}

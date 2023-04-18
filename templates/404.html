@@ -1,5 +1,23 @@
-<br>
-<center>
-    <h1>404 Error</h1>
-    <p>Page Not Found - Try Again</p>
-</center>
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <div class="col-10">
+        <center>
+            <div class="alert alert-info" role="alert">
+                <h1 class="alert-heading">404 Error</h1>
+                <p>Page Not Found - Try Again</p>
+            </div>
+        </center>
+    </div>
+
+    <!-- <br>
+    <div class="alert alert-info" role="alert">
+        A simple info alert—check it out!
+        <center>
+            <h1>404 Error</h1>
+            <p>Page Not Found - Try Again</p>
+        </center>
+    </div> -->
+
+{% endblock %}
