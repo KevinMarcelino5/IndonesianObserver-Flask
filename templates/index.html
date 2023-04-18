@@ -1,0 +1,20 @@
+<h1>Hello World</h1>
+
+<p>This is {{ first_name }} first webpage</p>
+
+<p>{{stuff | safe}}</p>
+
+<p><strong>Favorite Martabak</strong></p>
+
+{% for toping in favorite_martabak %}
+
+    {% if toping == 47 %}
+        {{ toping +100 }} <br>
+    {% else %}    
+        {{ toping }} <br>
+    {% endif %}
+    
+{% endfor %}
+
+<br><br>
+{{ favorite_martabak.1 }}
