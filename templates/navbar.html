@@ -1,0 +1,20 @@
+
+<nav class="navbar navbar-dark bg-danger navbar-expand-md sticky-top " id="mainNav">
+    <div class="container">
+        <a class="navbar-brand" href="#">
+            <img src="{{ url_for('static', filename='img/logo-IO.png')}}" height="35" alt="">
+          </a>
+                <button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1"><span class="visually-hidden">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="navcol-1">
+            <ul class="navbar-nav mx-auto">
+                <li class="nav-item"><a class="nav-link active" href="/">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="services.html">Services</a></li>
+                <li class="nav-item"><a class="nav-link" href="projects.html">Projects</a></li><!-- <li class="nav-item"><a class="nav-link" href="products.html">Products</a></li> -->
+                <li class="nav-item"><a class="nav-link" href="team.html">Team</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('add_user') }}">Add User</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('name') }}">Name</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('user', name='Kevin') }}">User Profile</a></li>
+            </ul><a class="btn btn-light shadow" role="button" href="/login">Login</a>
+        </div>
+    </div>
+</nav>

@@ -1,26 +1,29 @@
-<h1>Hello World</h1>
-
 {% extends 'base.html' %}
 
 {% block content %}
+<div class="container kev-bg-light">
 
-<p>This is {{ first_name }} first webpage</p>
-
-<p>{{stuff | safe}}</p>
-
-<p><strong>Favorite Martabak</strong></p>
-
-{% for toping in favorite_martabak %}
-
+    <h1>Hello World</h1>
+    
+    
+    <p>This is {{ first_name }} first webpage</p>
+    
+    <p>{{stuff | safe}}</p>
+    
+    <p><strong>Favorite Martabak</strong></p>
+    
+    {% for toping in favorite_martabak %}
+    
     {% if toping == 47 %}
-        {{ toping +100 }} <br>
+    {{ toping +100 }} <br>
     {% else %}    
-        {{ toping }} <br>
+    {{ toping }} <br>
     {% endif %}
-
-{% endfor %}
-
-<br><br>
-{{ favorite_martabak.1 }}
-
-{% endblock %}
+    
+    {% endfor %}
+    
+    <br><br>
+    {{ favorite_martabak.1 }}
+    
+</div>
+    {% endblock %}
