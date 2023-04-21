@@ -13,9 +13,29 @@
 
     {% if name %}
         <h1> Hello {{ name }}</h1>
+
+        <div class="shadow p-3 mb-5 mt-3 bg-body-tertiary rounded bg-light">
+            <table class="table table-striped">
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Actions</th>
+                </tr>
+                {% for our_user in our_users %}
+                <tr>
+                    <td>{{ our_user.id }}</td>
+                    <td>{{ our_user.name }}</td>
+                    <td>{{ our_user.email }}</td>
+                    <td><a class="btn btn-secondary btn-sm" href="{{ url_for('update', id=our_user.id) }}">Update</a></td>
+                {% endfor %}
+                </tr>
+            </table>
+        </div>
+
     {% else %}
     <div class="shadow p-3 mb-5 mt-3 bg-body-tertiary rounded bg-light">
-        <h1>User List:</h1>
+        <h3>Add user</h3>
             <br>
             <form method="POST">
                 {{ form.hidden_tag() }}
@@ -29,20 +49,24 @@
                 {{ form.submit(class="btn btn-primary") }}
             </form>
     </div>
+    <div class="shadow p-3 mb-5 mt-3 bg-body-tertiary rounded bg-light">
         <table class="table table-striped">
             <tr>
                 <th scope="col">ID</th>
                 <th scope="col">Name</th>
                 <th scope="col">Email</th>
+                <th scope="col">Actions</th>
             </tr>
             {% for our_user in our_users %}
             <tr>
                 <td>{{ our_user.id }}</td>
                 <td>{{ our_user.name }}</td>
                 <td>{{ our_user.email }}</td>
-                {% endfor %}
+                <td><a class="btn btn-secondary btn-sm" href="{{ url_for('update', id=our_user.id) }}">Update</a></td>
+            {% endfor %}
             </tr>
         </table>
+    </div>
             {% endif %}
 </div>
 
