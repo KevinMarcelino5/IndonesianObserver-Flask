@@ -2,8 +2,10 @@ from flask import Flask, render_template, flash, request
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
-from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+
 
 
 app = Flask(__name__)
@@ -13,11 +15,12 @@ app = Flask(__name__)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 # MYSQL Database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:1234@localhost/our_users'
-
+    
 # secret key
 app.config['SECRET_KEY'] = "Indonesia raya merdeka merdeka, tanahku negeriku yang kucinta"
 # initialize database
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 
 # create Model
@@ -25,6 +28,7 @@ class Users(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200), nullable=False)
     email = db.Column(db.String(200), nullable=False, unique=True)
+    favorite_food = db.Column(db.String(200))
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
         
     # create string
@@ -35,6 +39,7 @@ class Users(db.Model):
 class UserForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     email = StringField("Email", validators=[DataRequired()])
+    favorite_food = StringField("Favorite Food")
     submit = SubmitField("Submit")
 
 # update database record
@@ -45,6 +50,7 @@ def update(id):
     if request.method == 'POST':
         name_to_update.name = request.form['name']
         name_to_update.email = request.form['email']
+        name_to_update.favorite_food = request.form['favorite_food']
         try:
             db.session.commit()
             flash('User updated successfully')
@@ -74,12 +80,13 @@ def add_user():
     if form.validate_on_submit():
         user = Users.query.filter_by(email=form.email.data).first()
         if user is None:
-            user =  Users(name=form.name.data, email=form.email.data)
+            user =  Users(name=form.name.data, email=form.email.data, favorite_food=form.favorite_food.data)
             db.session.add(user)
             db.session.commit()
         name = form.name.data
         form.name.data = ''
-        form.name.data = ''
+        form.email.data = ''
+        form.favorite_food.data = ''
         flash('User Added successfully')
     our_users = Users.query.order_by(Users.date_added)
     

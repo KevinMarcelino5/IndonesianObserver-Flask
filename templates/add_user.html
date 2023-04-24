@@ -20,6 +20,7 @@
                     <th scope="col">ID</th>
                     <th scope="col">Name</th>
                     <th scope="col">Email</th>
+                    <th scope="col">Favorite Food</th>
                     <th scope="col">Actions</th>
                 </tr>
                 {% for our_user in our_users %}
@@ -27,6 +28,7 @@
                     <td>{{ our_user.id }}</td>
                     <td>{{ our_user.name }}</td>
                     <td>{{ our_user.email }}</td>
+                    <td>{{ our_user.favorite_food }}</td>
                     <td><a class="btn btn-secondary btn-sm" href="{{ url_for('update', id=our_user.id) }}">Update</a></td>
                 {% endfor %}
                 </tr>
@@ -46,6 +48,9 @@
                 {{ form.email.label(class="form-label") }}
                 {{ form.email(class="form-control") }}
                 <br>
+                {{ form.favorite_food.label(class="form-label") }}
+                {{ form.favorite_food(class="form-control") }}
+                <br>
                 {{ form.submit(class="btn btn-primary") }}
             </form>
     </div>
@@ -55,6 +60,7 @@
                 <th scope="col">ID</th>
                 <th scope="col">Name</th>
                 <th scope="col">Email</th>
+                <th scope="col">Favorite Food</th>
                 <th scope="col">Actions</th>
             </tr>
             {% for our_user in our_users %}
@@ -62,6 +68,7 @@
                 <td>{{ our_user.id }}</td>
                 <td>{{ our_user.name }}</td>
                 <td>{{ our_user.email }}</td>
+                <td>{{ our_user.favorite_food }}</td>
                 <td><a class="btn btn-secondary btn-sm" href="{{ url_for('update', id=our_user.id) }}">Update</a></td>
             {% endfor %}
             </tr>
