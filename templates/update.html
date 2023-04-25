@@ -30,6 +30,30 @@
                 {{ form.favorite_food(class="form-control", value=name_to_update.favorite_food) }}
                 <br>
                 {{ form.submit(class="btn btn-primary") }}
+
+                <!-- Button trigger modal -->
+                <a class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#exampleModal{{ id }}">
+                    Delete
+                </a>
+                
+                <!-- Modal -->
+                <div class="modal fade" id="exampleModal{{ id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Delete User <strong>{{ name_to_update.name }}</strong></h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Apakah anda yakin untuk menghapus user <strong>{{ name_to_update.name }}</strong>
+                        </div>
+                        <div class="modal-footer">
+                        <a class="btn btn-secondary" data-bs-dismiss="modal">Cancel</a>
+                        <a class="btn btn-danger" href="{{ url_for('delete', id=id) }}">Delete</a>
+                        </div>
+                    </div>
+                    </div>
+                </div>
             </form>
     </div>
     {% endif %}
