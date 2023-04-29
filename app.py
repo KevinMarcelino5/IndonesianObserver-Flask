@@ -6,6 +6,7 @@ from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
+from wtforms.widgets import TextArea
 
 
 
@@ -22,6 +23,68 @@ app.config['SECRET_KEY'] = "Indonesia raya merdeka merdeka, tanahku negeriku yan
 # initialize database
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
+# Create a Journal model
+class Journals(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(255))
+    content = db.Column(db.Text)
+    author = db.Column(db.String(255))
+    date_posted = db.Column(db.DateTime, default=datetime.utcnow)
+    slug = db.Column(db.String(255))
+    
+# create journals form
+class JournalForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired()])
+    content = StringField('Content', validators=[DataRequired()], widget=TextArea())
+    author = StringField('Author', validators=[DataRequired()])
+    slug = StringField('Slug', validators=[DataRequired()])
+    submit = SubmitField('Submit')
+
+# create journal page
+@app.route('/add_journal', methods=['GET','POST'])
+def add_journal():
+    form = JournalForm()
+    
+    if form.validate_on_submit():
+        journal = Journals(title=form.title.data, 
+                     content=form.content.data,
+                     author=form.author.data,
+                     slug=form.slug.data)
+        # Clear form
+        form.title.data = ''
+        form.content.data = ''
+        form.author.data = ''
+        form.slug.data = ''
+        # add to db
+        db.session.add(journal)
+        db.session.commit()
+        
+        flash("Journal submitted successfully")
+        
+    return render_template('add_journal.html', form=form, judul='Add Journal')
+
+@app.route('/journals')
+def journals():
+    journals = Journals.query.order_by(Journals.date_posted)
+    # grab all journals from db
+    return render_template('journals.html', journals=journals, judul='Journals')
+
+@app.route('/journals/<int:id>')
+def journal(id):
+    journal = Journals.query.get_or_404(id)
+    return render_template('journal.html', journal=journal, judul='Journal')
+
+# Jdon thing
+@app.route('/date')
+def get_current_date():
+    Pekerjaan = {
+        "Kevin" : "programmer",
+        "Efan" : "Karyawan",
+        "Philip":"Koki"
+    }
+    
+    return Pekerjaan
 
 
 # create Model
@@ -64,6 +127,7 @@ def delete(id):
         our_users = Users.query.order_by(Users.date_added)
     
         return render_template('add_user.html',
+                            judul='Add User',
                             form=form,
                             name=name,
                             our_users=our_users)
@@ -71,6 +135,7 @@ def delete(id):
     except:
         flash('There was a problem deleting user')
         return render_template('add_user.html',
+                            judul='Add User',
                             form=form,
                             name=name,
                             our_users=our_users)
@@ -97,18 +162,28 @@ def update(id):
             db.session.commit()
             flash('User updated successfully')
             return render_template('update.html',
+                                   judul='Update User',
                                    form=form,
                                    name_to_update=name_to_update)
         except:
             flash('Error! looks like there a problem, try again (#except)')
             return render_template('update.html',
+                                   judul='Update User',
                                    form=form,
                                    name_to_update=name_to_update)
     else:
         return render_template('update.html',
+                                judul='Update User',
                                 form=form,
                                 name_to_update=name_to_update,
                                 id=id)
+    
+# create a password form
+class PasswordForm(FlaskForm):
+    email = StringField("Whats your email ?", validators=[DataRequired()])
+    password_hash = PasswordField("Whats your password ?", validators=[DataRequired()])
+    
+    submit = SubmitField("Submit")
     
 # create a form class
 class NamerForm(FlaskForm):
@@ -137,12 +212,16 @@ def add_user():
         form.favorite_food.data = ''
         form.password_hash.data = ''
         flash('User Added successfully')
-    our_users = Users.query.order_by(Users.date_added)
     
     return render_template('add_user.html',
+                           judul='Add User',
                            form=form,
-                           name=name,
-                           our_users=our_users)
+                           name=name,)
+                        
+@app.route('/users')
+def users():
+    our_users = Users.query.order_by(Users.date_added)
+    return render_template('users.html', our_users=our_users)
 
 
 # route decorateor
@@ -152,25 +231,57 @@ def index():
     stuff = "This is <strong>Bold</strong> text"
     favorite_martabak = ['Coklat','Kacang','Keju','Susu',47]
     return render_template('index.html',
+                           judul='Home',
                            first_name=first_name,
                            stuff=stuff,
                            favorite_martabak=favorite_martabak)
 
-@app.route('/user/<name>')
-def user(name):
-    return render_template("user.html", user_name=name)
+# @app.route('/user/<name>')
+# def user(name):
+#     name='golojo'
+#     return render_template("user.html", name=name, judul='user name')
 
 # custom error page
 
 # invalid URL
 @app.errorhandler(404)
 def page_not_found(e):
-    return render_template('404.html'), 404
+    return render_template('404.html', judul='404'), 404
 
 # Internal Server error
 @app.errorhandler(500)
 def page_not_found(e):
-    return render_template('404.html'), 500
+    return render_template('500.html', judul='500'), 500
+
+# password test page
+@app.route('/test_pw', methods=['GET', 'POST'])
+def test_pw():
+    email = None
+    password = None
+    pw_to_check = None
+    passed = None
+    form = PasswordForm()
+    
+    # validator form
+    if form.validate_on_submit():
+        email = form.email.data
+        password = form.password_hash.data
+        # clear form
+        form.email.data = ''
+        form.password_hash.data = ''
+        
+        # lookup user by email
+        pw_to_check = Users.query.filter_by(email=email).first()
+        
+        # check hashed password
+        passed = check_password_hash(pw_to_check.password_hash, password)
+        
+    return render_template('test_pw.html',
+                           email = email,
+                           password = password,
+                           pw_to_check=pw_to_check,
+                           passed = passed,
+                           form = form)
 
 # name page
 @app.route('/name', methods=['GET', 'POST'])
@@ -184,5 +295,6 @@ def name():
         flash("FOrm submitted successfully")
         
     return render_template('name.html',
+                           judul='Name',
                            name = name,
                            form = form)

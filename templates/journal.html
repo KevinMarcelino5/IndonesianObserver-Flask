@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <div class="container">
+
+    {% for message in get_flashed_messages() %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <strong>{{ name }}</strong> {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+
+        <div class="shadow p-3 mb-5 mt-3 bg-body-tertiary rounded bg-light">
+            <h3>{{ journal.title }}</h3>
+            <h4>{{ journal.author }}</h4>
+            <p>{{ journal.slug }}</p>
+            <p>{{ journal.date_posted }}</p>
+            <p>{{ journal.content }}</p>
+        </div> 
+    
+    </div>
+
+{% endblock %}
