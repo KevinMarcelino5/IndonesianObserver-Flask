@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container">
+
+    {% for message in get_flashed_messages() %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <strong>{{ name }}</strong> {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+
+    <div class="shadow p-3 mb-5 mt-3 bg-body-tertiary rounded bg-light">
+        <h3>Dashboard</h3>
+        <p>You Are Logged In</p>
+        <p>{{ current_user.name }}</p>
+        <p>{{ current_user.username }}</p>
+        <p>{{ current_user.id }}</p>
+        <p>{{ current_user.email }}</p>
+        <p>{{ current_user.organization }}</p>
+        
+        <a href="{{ url_for('logout') }}" class="btn btn-outline-success">Log out</a>
+    </div>
+    
+</div>
+
+{% endblock %}

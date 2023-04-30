@@ -14,9 +14,14 @@
                 <li class="nav-item"><a class="nav-link" href="team.html">Team</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('journals') }}">Journals</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('add_journal') }}">Add Journal</a></li>
-                <li class="nav-item"><a class="nav-link" href="{{ url_for('users') }}">Users</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('name') }}">Name</a></li>
-            </ul><a class="btn btn-light shadow" role="button" href="/login">Login</a>
+                {% if current_user.is_authenticated %}
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                </ul><a class="btn btn-light shadow" role="button" href="{{ url_for('logout') }}">Logout</a>
+            {% else %}
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('users') }}">Users</a></li>
+                </ul><a class="btn btn-light shadow" role="button" href="{{ url_for('login') }}">Login</a>
+            {% endif %}
         </div>
     </div>
 </nav>

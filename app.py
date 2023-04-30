@@ -4,9 +4,11 @@ from wtforms import StringField, SubmitField, PasswordField, BooleanField, Valid
 from wtforms.validators import DataRequired, EqualTo, Length
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import or_
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 from wtforms.widgets import TextArea
+from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 
 
 
@@ -23,6 +25,54 @@ app.config['SECRET_KEY'] = "Indonesia raya merdeka merdeka, tanahku negeriku yan
 # initialize database
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
+# flask login stuff
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return Users.query.get(int(user_id))
+
+
+# Create login form
+class LoginForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    submit = SubmitField('Submit')
+
+# create login page
+@app.route('/login', methods=['GET','POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = Users.query.filter_by(username=form.username.data).first()
+        if user:
+            # check hash
+            if check_password_hash(user.password_hash, form.password.data):
+                login_user(user)
+                flash('Login successfully')
+                return redirect( url_for('dashboard') )
+            else:
+                flash('Wrong password - try again')
+        else:
+            flash('that user doesnt exist, try again')
+    return render_template('login.html', form=form)
+
+# Create logout
+@app.route('/logout',methods=['GET','POST'])
+@login_required
+def logout():
+    logout_user()
+    flash('you have been logged out! Terima kasih sudah mampir')
+    return redirect(url_for('login'))
+
+# create dashboard page
+@app.route('/dashboard', methods=['GET','POST'])
+@login_required
+def dashboard():
+    return render_template('dashboard.html')
 
 # Create a Journal model
 class Journals(db.Model):
@@ -127,11 +177,12 @@ def get_current_date():
 
 
 # create Model
-class Users(db.Model):
+class Users(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(20), nullable=False, unique=True)
     name = db.Column(db.String(200), nullable=False)
     email = db.Column(db.String(200), nullable=False, unique=True)
-    favorite_food = db.Column(db.String(200))
+    organization = db.Column(db.String(200))
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     
     # Password stuff
@@ -182,8 +233,9 @@ def delete(id):
 # create a form class
 class UserForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
+    username = StringField("Username", validators=[DataRequired()])
     email = StringField("Email", validators=[DataRequired()])
-    favorite_food = StringField("Favorite Food")
+    organization = StringField("Organization")
     password_hash = PasswordField('Password', validators=[DataRequired(), EqualTo('password_hash2', message='password must match')])
     password_hash2 = PasswordField('Confirm Password', validators=[DataRequired()])
     submit = SubmitField("Submit")
@@ -196,7 +248,7 @@ def update(id):
     if request.method == 'POST':
         name_to_update.name = request.form['name']
         name_to_update.email = request.form['email']
-        name_to_update.favorite_food = request.form['favorite_food']
+        name_to_update.organization = request.form['organization']
         try:
             db.session.commit()
             flash('User updated successfully')
@@ -236,19 +288,27 @@ def add_user():
     form = UserForm()
     if form.validate_on_submit():
         user = Users.query.filter_by(email=form.email.data).first()
-        if user is None:
+        username = Users.query.filter_by(username=form.username.data).first()
+        if (user or username) is None:
             # hash password
             hashed_pw= generate_password_hash(form.password_hash.data, 'sha256')
             user =  Users(name=form.name.data,
+                          username=form.username.data,
                           email=form.email.data,
-                          favorite_food=form.favorite_food.data,
+                          organization=form.organization.data,
                           password_hash=hashed_pw)
             db.session.add(user)
             db.session.commit()
+        
+        else:
+            flash('tambah user gagal, ada email atau username yang sama')
+            return redirect( url_for('users') )
+        
         name = form.name.data
         form.name.data = ''
+        form.username.data = ''
         form.email.data = ''
-        form.favorite_food.data = ''
+        form.organization.data = ''
         form.password_hash.data = ''
         flash('User Added successfully')
     

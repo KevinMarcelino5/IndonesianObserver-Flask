@@ -3,6 +3,13 @@
 {% block content %}
 
 <div class="container">
+
+    {% for message in get_flashed_messages() %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <strong>{{ name }}</strong> {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
     
     <div class="shadow p-3 mb-5 mt-3 bg-body-tertiary rounded bg-light">
         <a href="{{ url_for('add_user') }}" type="button" class="btn btn-primary">Add User</a>
@@ -10,16 +17,18 @@
             <tr>
                 <th scope="col">ID</th>
                 <th scope="col">Name</th>
+                <th scope="col">Username</th>
                 <th scope="col">Email</th>
-                <th scope="col">Favorite Food</th>
+                <th scope="col">Organization</th>
                 <th scope="col">Actions</th>
             </tr>
             {% for our_user in our_users %}
             <tr>
                 <td>{{ our_user.id }}</td>
                 <td>{{ our_user.name }}</td>
+                <td>{{ our_user.username }}</td>
                 <td>{{ our_user.email }}</td>
-                <td>{{ our_user.favorite_food }}</td>
+                <td>{{ our_user.organization }}</td>
                 <td>
                     <a class="btn btn-secondary btn-sm" href="{{ url_for('update', id=our_user.id) }}">Update</a>
                     <!-- Button trigger modal -->
