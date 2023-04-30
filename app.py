@@ -1,4 +1,4 @@
-from flask import Flask, render_template, flash, request
+from flask import Flask, render_template, flash, request, redirect, url_for
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField, BooleanField, ValidationError
 from wtforms.validators import DataRequired, EqualTo, Length
@@ -40,6 +40,24 @@ class JournalForm(FlaskForm):
     author = StringField('Author', validators=[DataRequired()])
     slug = StringField('Slug', validators=[DataRequired()])
     submit = SubmitField('Submit')
+    
+# Delete Journal
+@app.route('/journals/delete/<int:id>')
+def delete_journal(id):
+    journal_to_delete = Journals.query.get_or_404(id)
+    
+    try:
+        db.session.delete(journal_to_delete)
+        db.session.commit()
+        
+        flash('jurnal sudah dihapus')
+        journals = Journals.query.order_by(Journals.id)
+        return render_template('journals.html', journals=journals)
+        
+    except:
+        flash('whoops, ada masalah untuk menghapus jurnal, cobalagi')
+        journals = Journals.query.order_by(Journals.id)
+        return render_template('journals.html', journals=journals)
 
 # create journal page
 @app.route('/add_journal', methods=['GET','POST'])
@@ -74,6 +92,27 @@ def journals():
 def journal(id):
     journal = Journals.query.get_or_404(id)
     return render_template('journal.html', journal=journal, judul='Journal')
+
+# update journal
+@app.route('/journals/edit/<int:id>', methods=['GET','POST'])
+def edit_journal(id):
+    journal = Journals.query.get_or_404(id)
+    form = JournalForm()
+    if form.validate_on_submit():
+        journal.title = form.title.data
+        journal.author = form.author.data
+        journal.slug = form.slug.data
+        journal.content = form.content.data
+        # update database
+        db.session.add(journal)
+        db.session.commit()
+        flash('Journal has been edited')
+        return redirect( url_for('journal', id=journal.id) )
+    form.title.data = journal.title
+    form.author.data = journal.author
+    form.slug.data = journal.slug
+    form.content.data = journal.content
+    return render_template('edit_journal.html', form=form)
 
 # Jdon thing
 @app.route('/date')

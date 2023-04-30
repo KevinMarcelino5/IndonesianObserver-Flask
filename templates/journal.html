@@ -18,7 +18,9 @@
             <p>{{ journal.date_posted }}</p>
             <p>{{ journal.content }}</p>
         </div> 
+        <a href="{{ url_for('journals')}}" type="button" class="btn btn-outline-secondary">Kembali</a>
+        <a href="{{ url_for('edit_journal', id=journal.id)}}" type="button" class="btn btn-outline-info">Edit Jurnal</a>
     
-    </div>
+        </div>
 
 {% endblock %}

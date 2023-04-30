@@ -1,3 +1,10 @@
 .kev-bg-light{
     background-color: #f1f1f1;
 }
+
+p.journal-content {
+    width: auto;
+    height:40px;
+    line-height:20px; /* Height / no. of lines to display */
+    overflow:hidden;
+}
