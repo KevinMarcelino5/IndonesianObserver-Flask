@@ -31,47 +31,28 @@ login_manager.login_view = 'login'
 def load_user(user_id):
     return Users.query.get(int(user_id))
 
-# Create a Journal model
-class Journals(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(255))
-    content = db.Column(db.Text)
-    # author = db.Column(db.String(255))
-    date_posted = db.Column(db.DateTime, default=datetime.utcnow)
-    slug = db.Column(db.String(255))
-    # foreign key to link users , refer to primary key from users
-    penulis_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    
+# pass stuff to navbar
+@app.context_processor
+def base():
+    form = SearchForm()
+    return dict(form=form)
 
-# create Model
-class Users(db.Model, UserMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), nullable=False, unique=True)
-    name = db.Column(db.String(200), nullable=False)
-    email = db.Column(db.String(200), nullable=False, unique=True)
-    organization = db.Column(db.String(200))
-    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+# create search function
+@app.route('/search', methods=['POST'])
+def search():
+    form = SearchForm()
+    journals = Journals.query
     
-    # Password stuff
-    password_hash = db.Column(db.String(128))
-    
-    # user can have many journals
-    journals = db.relationship('Journals', backref='penulis')
-    
-    @property
-    def password(self):
-        raise AttributeError('password is not readable attribute !')
-    
-    @password.setter
-    def password(self, password):
-        self.password_hash = generate_password_hash(password)
-        
-    def verify_password(self, password):
-        return check_password_hash(self.password_hash, password)
-        
-    # create string
-    def __repr__(self):
-        return '<Name %r>' % self.name
+    if form.validate_on_submit():
+        # get data from submit form
+        journal.searched = form.searched.data
+        # query the database
+        journals = journals.filter(Journals.content.like('%' + journal.searched + '%'))
+        journals = journals.order_by(Journals.date_posted).all()
+        return render_template('search.html',
+                               form=form,
+                               searched=journal.searched,
+                               journals=journals)
 
 # create login page
 @app.route('/login', methods=['GET','POST'])
@@ -382,3 +363,45 @@ def name():
                            judul='Name',
                            name = name,
                            form = form)
+    
+# Create a Journal model
+class Journals(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(255))
+    content = db.Column(db.Text)
+    # author = db.Column(db.String(255))
+    date_posted = db.Column(db.DateTime, default=datetime.utcnow)
+    slug = db.Column(db.String(255))
+    # foreign key to link users , refer to primary key from users
+    penulis_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    
+
+# create Model
+class Users(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(20), nullable=False, unique=True)
+    name = db.Column(db.String(200), nullable=False)
+    email = db.Column(db.String(200), nullable=False, unique=True)
+    organization = db.Column(db.String(200))
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Password stuff
+    password_hash = db.Column(db.String(128))
+    
+    # user can have many journals
+    journals = db.relationship('Journals', backref='penulis')
+    
+    @property
+    def password(self):
+        raise AttributeError('password is not readable attribute !')
+    
+    @password.setter
+    def password(self, password):
+        self.password_hash = generate_password_hash(password)
+        
+    def verify_password(self, password):
+        return check_password_hash(self.password_hash, password)
+        
+    # create string
+    def __repr__(self):
+        return '<Name %r>' % self.name
