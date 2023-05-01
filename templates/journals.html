@@ -19,7 +19,7 @@
             <div class="row align-items-start">
                 <h4>{{ journal.title }}</h4>
                 <div class="col">
-                    <p>Penulis : {{ journal.author }}</p>
+                    <p>Penulis : {{ journal.penulis.name }}</p>
                 </div>
                 <!-- <p>{{ journal.slug }}</p> -->
                 <div class="col text-end">
@@ -28,6 +28,7 @@
                 <p class="journal-content">{{ journal.content }}</p>
             </div>
             <a href="{{ url_for('journal', id=journal.id)}}" type="button" class="btn btn-outline-secondary btn-sm">Baca Lanjut</a>
+            {% if journal.penulis_id == current_user.id %}
             <a href="{{ url_for('edit_journal', id=journal.id)}}" type="button" class="btn btn-outline-info btn-sm">Edit Jurnal</a>
             <!-- Button trigger modal -->
             <a class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal{{ journal.id}}">
@@ -53,6 +54,7 @@
                 </div>
                 </div>
             </div>
+            {% endif %}
         </div> 
     {% endfor %}
     

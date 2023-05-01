@@ -1,14 +1,10 @@
 from flask import Flask, render_template, flash, request, redirect, url_for
-from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField, BooleanField, ValidationError
-from wtforms.validators import DataRequired, EqualTo, Length
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import or_
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
-from wtforms.widgets import TextArea
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
+from webforms import *
 
 
 
@@ -35,12 +31,47 @@ login_manager.login_view = 'login'
 def load_user(user_id):
     return Users.query.get(int(user_id))
 
+# Create a Journal model
+class Journals(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(255))
+    content = db.Column(db.Text)
+    # author = db.Column(db.String(255))
+    date_posted = db.Column(db.DateTime, default=datetime.utcnow)
+    slug = db.Column(db.String(255))
+    # foreign key to link users , refer to primary key from users
+    penulis_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    
 
-# Create login form
-class LoginForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    submit = SubmitField('Submit')
+# create Model
+class Users(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(20), nullable=False, unique=True)
+    name = db.Column(db.String(200), nullable=False)
+    email = db.Column(db.String(200), nullable=False, unique=True)
+    organization = db.Column(db.String(200))
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Password stuff
+    password_hash = db.Column(db.String(128))
+    
+    # user can have many journals
+    journals = db.relationship('Journals', backref='penulis')
+    
+    @property
+    def password(self):
+        raise AttributeError('password is not readable attribute !')
+    
+    @password.setter
+    def password(self, password):
+        self.password_hash = generate_password_hash(password)
+        
+    def verify_password(self, password):
+        return check_password_hash(self.password_hash, password)
+        
+    # create string
+    def __repr__(self):
+        return '<Name %r>' % self.name
 
 # create login page
 @app.route('/login', methods=['GET','POST'])
@@ -74,38 +105,29 @@ def logout():
 def dashboard():
     return render_template('dashboard.html')
 
-# Create a Journal model
-class Journals(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(255))
-    content = db.Column(db.Text)
-    author = db.Column(db.String(255))
-    date_posted = db.Column(db.DateTime, default=datetime.utcnow)
-    slug = db.Column(db.String(255))
-    
-# create journals form
-class JournalForm(FlaskForm):
-    title = StringField('Title', validators=[DataRequired()])
-    content = StringField('Content', validators=[DataRequired()], widget=TextArea())
-    author = StringField('Author', validators=[DataRequired()])
-    slug = StringField('Slug', validators=[DataRequired()])
-    submit = SubmitField('Submit')
     
 # Delete Journal
 @app.route('/journals/delete/<int:id>')
+@login_required
 def delete_journal(id):
     journal_to_delete = Journals.query.get_or_404(id)
+    id = current_user.id
     
-    try:
-        db.session.delete(journal_to_delete)
-        db.session.commit()
-        
-        flash('jurnal sudah dihapus')
-        journals = Journals.query.order_by(Journals.id)
-        return render_template('journals.html', journals=journals)
-        
-    except:
-        flash('whoops, ada masalah untuk menghapus jurnal, cobalagi')
+    if id == journal_to_delete.penulis.id:
+        try:
+            db.session.delete(journal_to_delete)
+            db.session.commit()
+            
+            flash('jurnal sudah dihapus')
+            journals = Journals.query.order_by(Journals.id)
+            return render_template('journals.html', journals=journals)
+            
+        except:
+            flash('whoops, ada masalah untuk menghapus jurnal, cobalagi')
+            journals = Journals.query.order_by(Journals.id)
+            return render_template('journals.html', journals=journals)
+    else:
+        flash('Anda tidak berwenang untuk menghapus journal ini')
         journals = Journals.query.order_by(Journals.id)
         return render_template('journals.html', journals=journals)
 
@@ -115,14 +137,14 @@ def add_journal():
     form = JournalForm()
     
     if form.validate_on_submit():
+        penulis = current_user.id
         journal = Journals(title=form.title.data, 
                      content=form.content.data,
-                     author=form.author.data,
+                     penulis_id=penulis,
                      slug=form.slug.data)
         # Clear form
         form.title.data = ''
         form.content.data = ''
-        form.author.data = ''
         form.slug.data = ''
         # add to db
         db.session.add(journal)
@@ -145,12 +167,14 @@ def journal(id):
 
 # update journal
 @app.route('/journals/edit/<int:id>', methods=['GET','POST'])
+@login_required
 def edit_journal(id):
     journal = Journals.query.get_or_404(id)
     form = JournalForm()
+    
     if form.validate_on_submit():
         journal.title = form.title.data
-        journal.author = form.author.data
+        # journal.author = form.author.data
         journal.slug = form.slug.data
         journal.content = form.content.data
         # update database
@@ -158,12 +182,19 @@ def edit_journal(id):
         db.session.commit()
         flash('Journal has been edited')
         return redirect( url_for('journal', id=journal.id) )
-    form.title.data = journal.title
-    form.author.data = journal.author
-    form.slug.data = journal.slug
-    form.content.data = journal.content
-    return render_template('edit_journal.html', form=form)
-
+    
+    if current_user.id == journal.penulis_id:
+        form.title.data = journal.title
+        # form.author.data = journal.author
+        form.slug.data = journal.slug
+        form.content.data = journal.content
+        return render_template('edit_journal.html', form=form)
+    else:
+        flash('Anda tidak berwenang untuk menyunting halaman ini')
+        journals = Journals.query.order_by(Journals.date_posted)
+        return render_template('journals.html', journals=journals)
+    
+    
 # Jdon thing
 @app.route('/date')
 def get_current_date():
@@ -175,35 +206,9 @@ def get_current_date():
     
     return Pekerjaan
 
-
-# create Model
-class Users(db.Model, UserMixin):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), nullable=False, unique=True)
-    name = db.Column(db.String(200), nullable=False)
-    email = db.Column(db.String(200), nullable=False, unique=True)
-    organization = db.Column(db.String(200))
-    date_added = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    # Password stuff
-    password_hash = db.Column(db.String(128))
-    
-    @property
-    def password(self):
-        raise AttributeError('password is not readable attribute !')
-    
-    @password.setter
-    def password(self, password):
-        self.password_hash = generate_password_hash(password)
-        
-    def verify_password(self, password):
-        return check_password_hash(self.password_hash, password)
-        
-    # create string
-    def __repr__(self):
-        return '<Name %r>' % self.name
     
 @app.route('/delete/<int:id>')
+@login_required
 def delete(id):
     user_to_delete = Users.query.get_or_404(id)
     name = None
@@ -229,19 +234,11 @@ def delete(id):
                             form=form,
                             name=name,
                             our_users=our_users)
-    
-# create a form class
-class UserForm(FlaskForm):
-    name = StringField("Name", validators=[DataRequired()])
-    username = StringField("Username", validators=[DataRequired()])
-    email = StringField("Email", validators=[DataRequired()])
-    organization = StringField("Organization")
-    password_hash = PasswordField('Password', validators=[DataRequired(), EqualTo('password_hash2', message='password must match')])
-    password_hash2 = PasswordField('Confirm Password', validators=[DataRequired()])
-    submit = SubmitField("Submit")
+   
 
 # update database record
 @app.route('/update/<int:id>', methods=['GET','POST'])
+@login_required
 def update(id):
     form = UserForm()
     name_to_update = Users.query.get_or_404(id)
@@ -268,18 +265,6 @@ def update(id):
                                 form=form,
                                 name_to_update=name_to_update,
                                 id=id)
-    
-# create a password form
-class PasswordForm(FlaskForm):
-    email = StringField("Whats your email ?", validators=[DataRequired()])
-    password_hash = PasswordField("Whats your password ?", validators=[DataRequired()])
-    
-    submit = SubmitField("Submit")
-    
-# create a form class
-class NamerForm(FlaskForm):
-    name = StringField("Whats your name ?", validators=[DataRequired()])
-    submit = SubmitField("Submit")
     
     
 @app.route('/user/add', methods=['GET','POST'])
