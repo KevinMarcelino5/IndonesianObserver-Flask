@@ -4,11 +4,15 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
+from flask_ckeditor import CKEditor
 from webforms import *
 
 
 
 app = Flask(__name__)
+
+# add ck editor
+ckeditor = CKEditor(app)
        
 # add data base
 # old SQLite DB
@@ -114,6 +118,7 @@ def delete_journal(id):
 
 # create journal page
 @app.route('/add_journal', methods=['GET','POST'])
+@login_required
 def add_journal():
     form = JournalForm()
     

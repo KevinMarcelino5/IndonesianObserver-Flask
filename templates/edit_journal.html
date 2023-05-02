@@ -27,6 +27,8 @@
                 <br>
                 {{ form.submit(class="btn btn-primary") }}
             </form>
+            {{ ckeditor.load() }}
+            {{ ckeditor.config( name='content' )}}
             
         </div>
         <a href="{{ url_for('journals')}}" type="button" class="btn btn-outline-secondary">Kembali</a>

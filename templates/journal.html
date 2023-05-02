@@ -16,7 +16,7 @@
             <p>Penulis : {{ journal.penulis.name }}</p>
             <p>{{ journal.slug }}</p>
             <p>{{ journal.date_posted }}</p>
-            <p>{{ journal.content }}</p>
+            <p>{{ journal.content | safe }}</p>
         </div> 
         <a href="{{ url_for('journals')}}" type="button" class="btn btn-outline-secondary">Kembali</a>
         {% if journal.penulis.id == current_user.id %}
