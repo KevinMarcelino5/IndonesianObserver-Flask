@@ -3,6 +3,8 @@
 {% block content %}
 <div class="container mt-2">
     <h4>You search for "{{ searched }}"</h4>
+
+    {% if journals %}
     
     {% for journal in journals %}
         <div class="shadow p-3 mb-5 mt-3 bg-body-tertiary rounded bg-light">
@@ -53,6 +55,9 @@
         </div>
 
     {% endfor %}
+    {% else %}
+        <p>Maaf, kami tidak bisa menemukan yang anda cari</p>
+    {% endif %}
 </div>
 
 {% endblock %}

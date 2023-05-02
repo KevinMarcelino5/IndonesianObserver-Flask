@@ -5,6 +5,9 @@ from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 from flask_ckeditor import CKEditor
+from werkzeug.utils import secure_filename
+import uuid as uuid
+import os
 from webforms import *
 
 
@@ -22,6 +25,10 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:1234@localhost/our
     
 # secret key
 app.config['SECRET_KEY'] = "Indonesia raya merdeka merdeka, tanahku negeriku yang kucinta"
+
+UPLOAD_FOLDER = 'static/img/'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 # initialize database
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -244,19 +251,31 @@ def update(id):
     name_to_update = Users.query.get_or_404(id)
     if request.method == 'POST':
         name_to_update.name = request.form['name']
+        name_to_update.username = request.form['username']
         name_to_update.email = request.form['email']
         name_to_update.organization = request.form['organization']
+        name_to_update.about_author = request.form['about_author']
+        name_to_update.profile_pic = request.files['profile_pic']
+        # grap image name
+        pic_filename = secure_filename(name_to_update.profile_pic.filename)
+        # set uuif
+        pic_name = str(uuid.uuid1()) + '_' + pic_filename
+        # save that image
+        saver = request.files['profile_pic']
+        # change to a string to save to db
+        name_to_update.profile_pic = pic_name
         try:
+            saver.save(os.path.join(app.config['UPLOAD_FOLDER']), pic_name)
             db.session.commit()
             flash('User updated successfully')
-            return render_template('update.html',
-                                   judul='Update User',
+            return render_template('dashboard.html',
+                                   judul='Dashboard',
                                    form=form,
                                    name_to_update=name_to_update)
         except:
             flash('Error! looks like there a problem, try again (#except)')
-            return render_template('update.html',
-                                   judul='Update User',
+            return render_template('dashboard.html',
+                                   judul='Dashboard',
                                    form=form,
                                    name_to_update=name_to_update)
     else:
@@ -281,6 +300,7 @@ def add_user():
                           username=form.username.data,
                           email=form.email.data,
                           organization=form.organization.data,
+                          about_author=form.about_author.data,
                           password_hash=hashed_pw)
             db.session.add(user)
             db.session.commit()
@@ -294,6 +314,7 @@ def add_user():
         form.username.data = ''
         form.email.data = ''
         form.organization.data = ''
+        form.about_author.data = ''
         form.password_hash.data = ''
         flash('User Added successfully')
     
@@ -402,7 +423,9 @@ class Users(db.Model, UserMixin):
     name = db.Column(db.String(200), nullable=False)
     email = db.Column(db.String(200), nullable=False, unique=True)
     organization = db.Column(db.String(200))
+    about_author = db.Column(db.Text(500), nullable=True)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
+    profile_pic = db.Column(db.String(200), nullable=True)
     
     # Password stuff
     password_hash = db.Column(db.String(128))

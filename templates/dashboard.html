@@ -13,38 +13,51 @@
 
     <div class="shadow p-3 mb-5 mt-3 bg-body-tertiary rounded bg-light">
         <h3>Dashboard</h3>
-        <p>You Are Logged In</p>
-        <p>{{ current_user.name }}</p>
-        <p>{{ current_user.username }}</p>
-        <p>{{ current_user.id }}</p>
-        <p>{{ current_user.email }}</p>
-        <p>{{ current_user.organization }}</p>
-        
-        <a class="btn btn-secondary btn-sm" href="{{ url_for('update', id=current_user.id) }}">Update</a>
+        <div class="row">
 
-        <!-- Button trigger modal -->
-        <a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal{{ current_user.id}}">
-            Delete
-        </a>
-        
-        <!-- Modal -->
-        <div class="modal fade" id="exampleModal{{ current_user.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Delete User <strong>{{ current_user.name }}</strong></h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    Apakah anda yakin untuk menghapus user <strong>{{ current_user.name }}</strong>
-                </div>
-                <div class="modal-footer">
-                <a class="btn btn-secondary" data-bs-dismiss="modal">Cancel</a>
-                <a class="btn btn-danger" href="{{ url_for('delete', id=current_user.id) }}">Delete</a>
-                </div>
+            <div class="col-4">
+                <img src="{{ url_for('static', filename='img/default-profile-pict.png')}}" alt="">
             </div>
+
+            <div class="col-8">
+                <p>You Are Logged In</p>
+                <p>{{ current_user.name }}</p>
+                <p>{{ current_user.username }}</p>
+                <p>{{ current_user.id }}</p>
+                <p>{{ current_user.email }}</p>
+                <p>{{ current_user.organization }}</p>
+                <p>{{ current_user.profile_pic }}</p>
+                <p>{{ current_user.about_author }}</p>
+                
+                <a class="btn btn-secondary btn-sm" href="{{ url_for('update', id=current_user.id) }}">Update</a>
+        
+                <!-- Button trigger modal -->
+                <a class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal{{ current_user.id}}">
+                    Delete
+                </a>
+                
+                <!-- Modal -->
+                <div class="modal fade" id="exampleModal{{ current_user.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Delete User <strong>{{ current_user.name }}</strong></h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                Apakah anda yakin untuk menghapus user <strong>{{ current_user.name }}</strong>
+                            </div>
+                            <div class="modal-footer">
+                            <a class="btn btn-secondary" data-bs-dismiss="modal">Cancel</a>
+                            <a class="btn btn-danger" href="{{ url_for('delete', id=current_user.id) }}">Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+        
+        
 
     </div>
     

@@ -17,11 +17,14 @@
         ID to update: {{ id }} <br>
         Current ID: {{ current_user.id }}
             <br>
-            <form action="/update/{{ name_to_update.id }}" method="POST">
+            <form action="/update/{{ name_to_update.id }}" method="POST" enctype="multipart/form-data">
                 {{ form.hidden_tag() }}
     
                 {{ form.name.label(class="form-label") }}
                 {{ form.name(class="form-control", value=name_to_update.name) }}
+                <br>
+                {{ form.username.label(class="form-label") }}
+                {{ form.username(class="form-control", value=name_to_update.username) }}
                 <br>
                 {{ form.email.label(class="form-label") }}
                 {{ form.email(class="form-control", value=name_to_update.email) }}
@@ -31,6 +34,12 @@
                 <br>
                 {{ form.organization.label(class="form-label") }}
                 {{ form.organization(class="form-control", value=name_to_update.organization) }}
+                <br>
+                <label for="about_author" class="form-label">Tentang Penulis</label>
+                <textarea id="about_author" name="about_author" rows="7" class="form-control">{{ name_to_update.about_author }}</textarea>
+                <br>
+                {{ form.profile_pic.label(class="form-label") }}
+                {{ form.profile_pic(class="form-control", value=name_to_update.profile_pic) }}
                 <br>
                 {{ form.submit(class="btn btn-primary") }}
 
@@ -63,6 +72,8 @@
     <div class="shadow p-3 mb-5 mt-3 bg-body-tertiary rounded bg-light">
         <h1 class="text-danger">Akses Ditolak !</h1>
         <h3>Maaf Anda tidak punya hak akses untuk ini</h3>
+        <p>{{ id }}</p> <br>
+        <p>{{ current_user.id }}</p>
     </div>
 
     {% endif %}
