@@ -41,6 +41,20 @@ def base():
     form = SearchForm()
     return dict(form=form)
 
+# admin page
+@app.route('/admin')
+@login_required
+def admin():
+    id = current_user.id
+    
+    if id == 27:
+        return render_template('admin.html')
+    else:
+        flash('Maaf, anda harus menjadi admin untuk mengakses halaman ini')
+        return redirect( url_for('dashboard'))
+        
+    
+
 # create search function
 @app.route('/search', methods=['POST'])
 def search():
