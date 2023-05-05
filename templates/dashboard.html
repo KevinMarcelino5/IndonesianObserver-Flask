@@ -24,9 +24,9 @@
                             style="border-top-left-radius: 1rem; border-bottom-left-radius: 1rem;">
                             <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava1-bg.webp"
                               alt="Avatar" class="img-fluid my-5" style="width: 80px;" />
-                            <h5>Nama</h5>
-                            <p>Nama Pengguna</p>
-                            <i class="mb-5 btn btn-outline-light btn-sm">Edit Profile</i>
+                            <h5>{{ current_user.name }}</h5>
+                            <p>{{ current_user.username }}</p>
+                            <a class="mb-5 btn btn-outline-light btn-sm" href="{{ url_for('update', id=current_user.id) }}">Edit Profile</a>
                           </div>
                           <div class="col-md-8">
                             <div class="card-body p-4">
@@ -36,24 +36,21 @@
                                 
                                 <div class="col-6 mb-3">
                                   <h6>Email</h6>
-                                  <p class="text-muted">info@example.com</p>
+                                  <p class="text-muted">{{ current_user.email }}</p>
                                 </div>
                                 <div class="col-6 mb-3">
                                   <h6>Organization</h6>
-                                  <p class="text-muted">Organization</p>
+                                  <p class="text-muted">{{ current_user.organization }}</p>
                                 </div>
                               </div>
-                              <h6>Tentang {{ current_user.name }}</h6>
+                              <p>Tentang <em>{{ current_user.name }}</em></p>
                               <hr class="mt-0 mb-4">
                               <div class="row pt-1">
-                                <div class="col-6 mb-3">
+                                <!-- <div class="col-10 mb-3"> -->
                                   <h6>Recent</h6>
-                                  <p class="text-muted">Lorem ipsum</p>
-                                </div>
-                                <div class="col-6 mb-3">
-                                  <h6>Most Viewed</h6>
-                                  <p class="text-muted">Dolor sit amet</p>
-                                </div>
+                                  <p class="text-muted">{{ current_user.about_author }}</p>
+                                <!-- </div> -->
+                                
                               </div>
                               <div class="d-flex justify-content-start">
                                 <a href="#!"><i class="fab fa-facebook-f fa-lg me-3"></i></a>
