@@ -2,6 +2,13 @@
 
 {% block content %}
 
+    {% for message in get_flashed_messages() %}
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <strong>{{ name }}</strong> {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+
 <br>
 <center>
     <h1>500 Internal Server Error</h1>

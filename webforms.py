@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField, BooleanField, ValidationError, TextAreaField
+from wtforms import StringField, SubmitField, PasswordField, BooleanField, ValidationError, TextAreaField, EmailField
 from wtforms.validators import DataRequired, EqualTo, Length
 from wtforms.widgets import TextArea
 from flask_ckeditor import CKEditorField
@@ -14,7 +14,18 @@ class SearchForm(FlaskForm):
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
-    submit = SubmitField('Submit')
+    submit = SubmitField('Login')
+
+# Create reset request form
+class ResetRequestForm(FlaskForm):
+    email = EmailField('Email', validators=[DataRequired()])
+    submit = SubmitField('Kirim')
+
+# Create reset password form
+class ResetPasswordForm(FlaskForm):
+    password_hash = PasswordField('New Password', validators=[DataRequired(), EqualTo('password_hash2', message='password must match')])
+    password_hash2 = PasswordField('Confirm New Password', validators=[DataRequired()])
+    submit = SubmitField('Change Password')
     
        
 # create journals form

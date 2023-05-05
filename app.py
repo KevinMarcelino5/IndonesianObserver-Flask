@@ -8,11 +8,21 @@ from flask_ckeditor import CKEditor
 from werkzeug.utils import secure_filename
 import uuid as uuid
 import os
+from flask_mail import Mail, Message
+from itsdangerous.jws import TimedJSONWebSignatureSerializer as Serializer
+import sshtunnel
 from webforms import *
 
 
 
 app = Flask(__name__)
+
+# tunneling for pythonanywhere
+# tunnel = sshtunnel.SSHTunnelForwarder(
+#     ('ssh.pythonanywhere.com'), ssh_username='qbenstow47', ssh_password='Anastasya7',
+#     remote_bind_address=('qbenstow47.mysql.pythonanywhere-services.com', 3306)
+# )
+# tunnel.start()
 
 # add ck editor
 ckeditor = CKEditor(app)
@@ -22,6 +32,16 @@ ckeditor = CKEditor(app)
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 # MYSQL Database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:1234@localhost/our_users'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://qbenstow47:Anastasya7@qbenstow47.mysql.pythonanywhere-services.com/qbenstow47$default'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://qbenstow47:Anastasya7@127.0.0.1:{}/qbenstow47$default'.format(tunnel.local_bind_port)
+
+# Gmail smtp setting
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'filousom@gmail.com'
+app.config['MAIL_PASSWORD'] = 'ttjqpeyydwwfxjwp'
+mail=Mail(app)
     
 # secret key
 app.config['SECRET_KEY'] = "Indonesia raya merdeka merdeka, tanahku negeriku yang kucinta"
@@ -59,9 +79,49 @@ def admin():
     else:
         flash('Maaf, anda harus menjadi admin untuk mengakses halaman ini')
         return redirect( url_for('dashboard'))
-        
     
 
+def send_mail(user):
+    token = user.get_token()
+    msg = Message('Password Reset Request',recipients=[user.email], sender='filousom@gmail.com')
+    msg.body = f''' To Reset your password. Please follow the link below
+    {url_for('reset_token', token=token, _external=True)}
+    
+    If you didnt send a password reset request. Please Ignore this message
+    '''
+    mail.send(msg)
+
+ 
+@app.route('/reset_request', methods=['GET','POST'])
+def reset_request():
+    form = ResetRequestForm()
+    if form.validate_on_submit():
+        user = Users.query.filter_by(email = form.email.data).first()
+        if user:
+            send_mail(user)
+            flash('Reset request sent, Check Your Email','success')
+            return redirect( url_for('login') )
+        else:
+            flash('Email tidak ditemukan !','error')
+    return render_template('reset_request.html', judul='Reset Password', form=form)
+
+@app.route('/reset_request/<token>', methods=['GET','POST'])
+def reset_token(token):
+    user = Users.verify_token(token)
+    if user is None:
+        flash('Invalid or expired token, please try again')
+        return redirect(url_for('reset_request'))
+    
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        hashed_pw= generate_password_hash(form.password_hash.data, 'sha256')
+        # user.password = hashed_pw
+        user.password_hash = hashed_pw
+        db.session.commit()
+        flash('Password changed, Please login')
+        return redirect(url_for('login'))
+    return render_template('change_password.html', judul='Change Password', form=form)
+   
 # create search function
 @app.route('/search', methods=['POST'])
 def search():
@@ -256,6 +316,8 @@ def update(id):
         name_to_update.organization = request.form['organization']
         name_to_update.about_author = request.form['about_author']
         name_to_update.profile_pic = request.files['profile_pic']
+        
+        
         # grap image name
         pic_filename = secure_filename(name_to_update.profile_pic.filename)
         # set uuif
@@ -432,6 +494,22 @@ class Users(db.Model, UserMixin):
     
     # user can have many journals
     journals = db.relationship('Journals', backref='penulis')
+    
+    # Token for reset
+    def get_token(self, expires_in=300):
+        serial = Serializer(app.config['SECRET_KEY'], expires_in=expires_in)
+        return serial.dumps({'user_id':self.id}).decode('utf-8')
+    
+    @staticmethod
+    def verify_token(token):
+        serial = Serializer(app.config['SECRET_KEY'])
+        try:
+            user_id = serial.loads(token)['user_id']
+        except:
+            return None
+        return Users.query.get(user_id)
+        
+        
     
     @property
     def password(self):

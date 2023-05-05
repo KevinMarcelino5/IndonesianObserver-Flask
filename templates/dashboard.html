@@ -11,6 +11,68 @@
       </div>
     {% endfor %}
 
+
+            <!-- Templates -->
+            <section>
+                <div class="py-5">
+                  <div class="row d-flex justify-content-center align-items-center h-100">
+                    <div class="col col-lg-12 mb-4 mb-lg-0">
+                      <!-- <div class="shadow rounded mb-3"> -->
+                      <div class="shadow mb-3" style="border-radius: 1rem; background-color: white;">
+                        <div class="row g-0">
+                          <div class="col-md-4 gradient-custom text-center text-white"
+                            style="border-top-left-radius: 1rem; border-bottom-left-radius: 1rem;">
+                            <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava1-bg.webp"
+                              alt="Avatar" class="img-fluid my-5" style="width: 80px;" />
+                            <h5>Nama</h5>
+                            <p>Nama Pengguna</p>
+                            <i class="mb-5 btn btn-outline-light btn-sm">Edit Profile</i>
+                          </div>
+                          <div class="col-md-8">
+                            <div class="card-body p-4">
+                              <h6>Informasi</h6>
+                              <hr class="mt-0 mb-4">
+                              <div class="row pt-1">
+                                
+                                <div class="col-6 mb-3">
+                                  <h6>Email</h6>
+                                  <p class="text-muted">info@example.com</p>
+                                </div>
+                                <div class="col-6 mb-3">
+                                  <h6>Organization</h6>
+                                  <p class="text-muted">Organization</p>
+                                </div>
+                              </div>
+                              <h6>Tentang {{ current_user.name }}</h6>
+                              <hr class="mt-0 mb-4">
+                              <div class="row pt-1">
+                                <div class="col-6 mb-3">
+                                  <h6>Recent</h6>
+                                  <p class="text-muted">Lorem ipsum</p>
+                                </div>
+                                <div class="col-6 mb-3">
+                                  <h6>Most Viewed</h6>
+                                  <p class="text-muted">Dolor sit amet</p>
+                                </div>
+                              </div>
+                              <div class="d-flex justify-content-start">
+                                <a href="#!"><i class="fab fa-facebook-f fa-lg me-3"></i></a>
+                                <a href="#!"><i class="fab fa-twitter fa-lg me-3"></i></a>
+                                <a href="#!"><i class="fab fa-instagram fa-lg"></i></a>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+              <!-- End templates -->
+
+
+
+
     <div class="shadow p-3 mb-5 mt-3 bg-body-tertiary rounded bg-light">
         <h3>Dashboard</h3>
         <div class="row">
@@ -18,6 +80,7 @@
             <div class="col-4">
                 <img src="{{ url_for('static', filename='img/default-profile-pict.png')}}" alt="">
             </div>
+
 
             <div class="col-8">
                 <p>You Are Logged In</p>

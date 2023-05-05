@@ -1,5 +1,5 @@
 
-<nav class="navbar navbar-dark bg-danger navbar-expand-md sticky-top " id="mainNav">
+<nav class="navbar navbar-dark gradient-custom-nav navbar-expand-md sticky-top " id="mainNav">
     <div class="container">
         <a class="navbar-brand" href="/">
             <img src="{{ url_for('static', filename='img/logo-IO.png')}}" height="35" alt="">
@@ -8,10 +8,10 @@
         <div class="collapse navbar-collapse" id="navcol-1">
             <ul class="navbar-nav mx-auto">
                 <li class="nav-item"><a class="nav-link active" href="{{ url_for('index') }}">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="services.html">Services</a></li>
-                <li class="nav-item"><a class="nav-link" href="projects.html">Projects</a></li>
+                <!-- <li class="nav-item"><a class="nav-link" href="services.html">Services</a></li>
+                <li class="nav-item"><a class="nav-link" href="projects.html">Projects</a></li> -->
                 <!-- <li class="nav-item"><a class="nav-link" href="products.html">Products</a></li> -->
-                <li class="nav-item"><a class="nav-link" href="team.html">Team</a></li>
+                <!-- <li class="nav-item"><a class="nav-link" href="team.html">Team</a></li> -->
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('journals') }}">Journals</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('add_journal') }}">Add Journal</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('name') }}">Name</a></li>
