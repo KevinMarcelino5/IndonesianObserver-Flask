@@ -22,8 +22,11 @@
                         <div class="row g-0">
                           <div class="col-md-4 gradient-custom text-center text-white"
                             style="border-top-left-radius: 1rem; border-bottom-left-radius: 1rem;">
-                            <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava1-bg.webp"
-                              alt="Avatar" class="img-fluid my-5" style="width: 80px;" />
+                            {% if current_user.profile_pic %}
+                              <img src="{{ url_for('static', filename='img/' + current_user.profile_pic )}}" alt="Avatar" class="img-fluid my-5" style="width: 80px;" />
+                            {% else %}
+                              <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava1-bg.webp" alt="Avatar" class="img-fluid my-5" style="width: 80px;" />
+                            {% endif %}
                             <h5>{{ current_user.name }}</h5>
                             <p>{{ current_user.username }}</p>
                             <a class="mb-5 btn btn-outline-light btn-sm" href="{{ url_for('update', id=current_user.id) }}">Edit Profile</a>
@@ -49,7 +52,7 @@
                                 <!-- <div class="col-10 mb-3"> -->
                                   <h6>Recent</h6>
                                   <p class="text-muted">{{ current_user.about_author }}</p>
-                                <!-- </div> -->
+                                <!-- </div>  -->
                                 
                               </div>
                               <div class="d-flex justify-content-start">
@@ -75,7 +78,12 @@
         <div class="row">
 
             <div class="col-4">
-                <img src="{{ url_for('static', filename='img/default-profile-pict.png')}}" alt="">
+                {% if current_user.profile_pic %}
+                  <img src="{{ url_for('static', filename='img/' + current_user.profile_pic )}}" alt="">
+                {% else %}
+                  <img src="{{ url_for('static', filename='img/default-profile-pict.png')}}" alt="">
+                {% endif %}
+
             </div>
 
 

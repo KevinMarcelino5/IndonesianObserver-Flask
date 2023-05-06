@@ -74,8 +74,9 @@ def base():
 def admin():
     id = current_user.id
     
-    if id == 27:
-        return render_template('admin.html')
+    if id == 27 or current_user.admin:
+        our_users = Users.query.order_by(Users.date_added)
+        return render_template('admin.html', our_users=our_users)
     else:
         flash('Maaf, anda harus menjadi admin untuk mengakses halaman ini')
         return redirect( url_for('dashboard'))
@@ -155,7 +156,7 @@ def login():
                 flash('Wrong password - try again')
         else:
             flash('that user doesnt exist, try again')
-    return render_template('login.html', form=form)
+    return render_template('login.html', form=form, judul='Login')
 
 # Create logout
 @app.route('/logout',methods=['GET','POST'])
@@ -169,7 +170,7 @@ def logout():
 @app.route('/dashboard', methods=['GET','POST'])
 @login_required
 def dashboard():
-    return render_template('dashboard.html')
+    return render_template('dashboard.html', judul='Dashboard')
 
     
 # Delete Journal
@@ -315,31 +316,36 @@ def update(id):
         name_to_update.email = request.form['email']
         name_to_update.organization = request.form['organization']
         name_to_update.about_author = request.form['about_author']
-        name_to_update.profile_pic = request.files['profile_pic']
+        name_to_update.admin = form.admin.data
+        # print(request.form['admin'])
         
-        
-        # grap image name
-        pic_filename = secure_filename(name_to_update.profile_pic.filename)
-        # set uuif
-        pic_name = str(uuid.uuid1()) + '_' + pic_filename
-        # save that image
-        saver = request.files['profile_pic']
-        # change to a string to save to db
-        name_to_update.profile_pic = pic_name
-        try:
-            saver.save(os.path.join(app.config['UPLOAD_FOLDER']), pic_name)
+        if request.files['profile_pic']:
+            name_to_update.profile_pic = request.files['profile_pic']
+            # grap image name
+            pic_filename = secure_filename(name_to_update.profile_pic.filename)
+            # set uuif
+            pic_name = str(uuid.uuid1()) + '_' + pic_filename
+            # save that image
+            saver = request.files['profile_pic']
+            # change to a string to save to db
+            name_to_update.profile_pic = pic_name
+            
+            try:
+                saver.save(os.path.join(app.config['UPLOAD_FOLDER'],pic_name))
+                db.session.commit()
+                flash('User updated successfully')
+                # return render_template('dashboard.html', judul='Dashboard')
+                return redirect( url_for('dashboard'))
+            except:
+                flash('Error! looks like there a problem, try again (#except)')
+                return render_template('dashboard.html',
+                                    judul='Dashboard',
+                                    form=form,
+                                    name_to_update=name_to_update)
+        else:
             db.session.commit()
             flash('User updated successfully')
-            return render_template('dashboard.html',
-                                   judul='Dashboard',
-                                   form=form,
-                                   name_to_update=name_to_update)
-        except:
-            flash('Error! looks like there a problem, try again (#except)')
-            return render_template('dashboard.html',
-                                   judul='Dashboard',
-                                   form=form,
-                                   name_to_update=name_to_update)
+            return redirect( url_for('dashboard'))
     else:
         return render_template('update.html',
                                 judul='Update User',
@@ -363,13 +369,15 @@ def add_user():
                           email=form.email.data,
                           organization=form.organization.data,
                           about_author=form.about_author.data,
-                          password_hash=hashed_pw)
+                          password_hash=hashed_pw,
+                          admin=form.admin.data)
+            print(form.admin.data)
             db.session.add(user)
             db.session.commit()
         
         else:
             flash('tambah user gagal, ada email atau username yang sama')
-            return redirect( url_for('users') )
+            return render_template('add_user.html', judul='Add User',)
         
         name = form.name.data
         form.name.data = ''
@@ -385,10 +393,10 @@ def add_user():
                            form=form,
                            name=name,)
                         
-@app.route('/users')
-def users():
-    our_users = Users.query.order_by(Users.date_added)
-    return render_template('users.html', our_users=our_users)
+# @app.route('/users')
+# def users():
+#     our_users = Users.query.order_by(Users.date_added)
+#     return render_template('users.html', our_users=our_users)
 
 
 # route decorateor
@@ -488,6 +496,7 @@ class Users(db.Model, UserMixin):
     about_author = db.Column(db.Text(500), nullable=True)
     date_added = db.Column(db.DateTime, default=datetime.utcnow)
     profile_pic = db.Column(db.String(200), nullable=True)
+    admin = db.Column(db.Boolean, nullable=True)
     
     # Password stuff
     password_hash = db.Column(db.String(128))

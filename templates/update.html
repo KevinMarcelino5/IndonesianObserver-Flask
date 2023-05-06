@@ -11,7 +11,7 @@
       </div>
     {% endfor %}
 
-    {% if id == current_user.id %}
+    {% if id == current_user.id or current_user.admin %}
     <div class="shadow p-3 mb-5 mt-3 bg-body-tertiary rounded bg-light">
         <h3>Update user</h3>
         ID to update: {{ id }} <br>
@@ -38,6 +38,15 @@
                 {{ form.profile_pic.label(class="form-label") }}
                 {{ form.profile_pic(class="form-control", value=name_to_update.profile_pic) }}
                 <br>
+                {% if current_user.id == 27 or current_user.admin%}
+                    {{ form.admin.label(class="form-label") }}
+                    {% if name_to_update.admin %}
+                        {{ form.admin(class="form-check-input", checked=True) }}
+                    {% else %}
+                        {{ form.admin(class="form-check-input") }}
+                    {% endif %}
+                    <br>
+                {% endif %}
                 {{ form.submit(class="btn btn-primary") }}
 
                 <!-- Button trigger modal -->

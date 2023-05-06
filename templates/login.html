@@ -11,7 +11,7 @@
       </div>
     {% endfor %}
 
-    <div class="shadow p-3 mb-5 mt-3 bg-body-tertiary rounded bg-light">
+    <div class="shadow p-3 mb-5 mt-3 bg-body rounded bg-light">
         <h3>LOGIN</h3>
             <br>
             <form method="POST">
@@ -26,6 +26,9 @@
                 {{ form.submit(class="btn btn-primary") }}
                 <a href="{{ url_for('reset_request')}}">Forgot Password?</a>
             </form>
+            <br>
+            <p>Belum punya akun?  <a href="{{ url_for('add_user') }}" type="button" class="btn btn-secondary btn-sm">Register</a></p>
+            
 
     </div>
     

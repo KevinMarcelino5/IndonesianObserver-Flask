@@ -11,9 +11,11 @@
         </div>
     {% endfor %}
 
-
-    <h1>Journals</h1>
-
+    <!-- <div class="row"> -->
+    <div class="d-flex justify-content-between"> 
+            <h1>Journals</h1>
+            <a class="btn btn-outline-primary btn-sm align-self-end" href="{{ url_for('add_journal') }}">Tambah Jurnal</a>      
+    </div>
     {% for journal in journals %}
         <div class="shadow p-3 mb-5 mt-3 bg-body-tertiary rounded bg-light">
             <div class="row align-items-start">

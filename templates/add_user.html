@@ -41,6 +41,11 @@
                 {{ form.password_hash2.label(class="form-label") }}
                 {{ form.password_hash2(class="form-control") }}
                 <br>
+                {% if current_user.id == 27 or current_user.admin%}
+                    {{ form.admin.label(class="form-label") }}
+                    {{ form.admin(class="form-check-input") }}
+                    <br>
+                {% endif %}
                 {{ form.submit(class="btn btn-primary") }}
             </form>
     </div>
