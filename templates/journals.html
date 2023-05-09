@@ -27,35 +27,36 @@
                 <div class="col text-end">
                     <p>{{ journal.date_posted }}</p>
                 </div>
-                <p class="journal-content">{{ journal.content | safe }}</p>
+                <!-- <p class="journal-content">{{ journal.content.partition('</p>')[0]+'.</p>' | safe }}</p> -->
+                <p class="journal-content">{{ journal.content[:200] | safe }}</p>
             </div>
             <a href="{{ url_for('journal', id=journal.id)}}" type="button" class="btn btn-outline-secondary btn-sm">Baca Lanjut</a>
             {% if journal.penulis_id == current_user.id %}
-            <a href="{{ url_for('edit_journal', id=journal.id)}}" type="button" class="btn btn-outline-info btn-sm">Edit Jurnal</a>
-            <!-- Button trigger modal -->
-            <a class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal{{ journal.id}}">
-                Hapus Jurnal
-            </a>
-            
-            <!-- Modal -->
-            <div class="modal fade" id="exampleModal{{ journal.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Hapus Jurnal</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <a href="{{ url_for('edit_journal', id=journal.id)}}" type="button" class="btn btn-outline-info btn-sm">Edit Jurnal</a>
+                <!-- Button trigger modal -->
+                <a class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal{{ journal.id}}">
+                    Hapus Jurnal
+                </a>
+                
+                <!-- Modal -->
+                <div class="modal fade" id="exampleModal{{ journal.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Hapus Jurnal</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Apakah anda yakin untuk menghapus jurnal</p>
+                            <p><strong>{{ journal.title }}</strong></p> 
+                        </div>
+                        <div class="modal-footer">
+                        <a class="btn btn-secondary" data-bs-dismiss="modal">Cancel</a>
+                        <a class="btn btn-danger" href="{{ url_for('delete_journal', id=journal.id) }}">Delete</a>
+                        </div>
                     </div>
-                    <div class="modal-body">
-                        <p>Apakah anda yakin untuk menghapus jurnal</p>
-                        <p><strong>{{ journal.title }}</strong></p> 
-                    </div>
-                    <div class="modal-footer">
-                    <a class="btn btn-secondary" data-bs-dismiss="modal">Cancel</a>
-                    <a class="btn btn-danger" href="{{ url_for('delete_journal', id=journal.id) }}">Delete</a>
                     </div>
                 </div>
-                </div>
-            </div>
             {% endif %}
         </div> 
     {% endfor %}

@@ -28,9 +28,15 @@ class ResetPasswordForm(FlaskForm):
     submit = SubmitField('Change Password')
     
        
+# create Testimoni form
+class TestimoniForm(FlaskForm):
+    content = StringField('Testimoni', validators=[DataRequired(), Length(max=300, message='Tidak lebih dari 300 karakter')])
+    # content = CKEditorField('Journal', validators=[DataRequired()])
+    submit = SubmitField('Submit')
+    
 # create journals form
 class JournalForm(FlaskForm):
-    title = StringField('Title', validators=[DataRequired()])
+    title = StringField('Title', validators=[DataRequired(), Length(max=300, message='Tidak lebih dari 300 karakter')])
     # content = StringField('Content', validators=[DataRequired()], widget=TextArea())
     content = CKEditorField('Journal', validators=[DataRequired()])
     author = StringField('Author')

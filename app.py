@@ -128,6 +128,7 @@ def reset_token(token):
 def search():
     form = SearchForm()
     journals = Journals.query
+    testimoni = Testimonials.query
     
     if form.validate_on_submit():
         # get data from submit form
@@ -135,10 +136,17 @@ def search():
         # query the database
         journals = journals.filter(Journals.content.like('%' + journal.searched + '%'))
         journals = journals.order_by(Journals.date_posted).all()
+        # get data from submit form
+        testimonials.searched = form.searched.data
+        # query the database
+        testimoni = testimoni.filter(Testimonials.content.like('%' + testimonials.searched + '%'))
+        testimoni = testimoni.order_by(Testimonials.date_posted).all()
         return render_template('search.html',
                                form=form,
                                searched=journal.searched,
-                               journals=journals)
+                               journals=journals,
+                               searched_testimoni=testimonials.searched,
+                               testimoni=testimoni)
 
 # create login page
 @app.route('/login', methods=['GET','POST'])
@@ -198,6 +206,72 @@ def delete_journal(id):
         journals = Journals.query.order_by(Journals.id)
         return render_template('journals.html', journals=journals)
 
+    
+# Delete Journal
+@app.route('/testimonials/delete/<int:id>')
+@login_required
+def delete_testimonials(id):
+    testimoni_to_delete = Testimonials.query.get_or_404(id)
+    id = current_user.id
+    
+    if id == testimoni_to_delete.penulis.id:
+        try:
+            db.session.delete(testimoni_to_delete)
+            db.session.commit()
+            
+            flash('Testimoni sudah dihapus')
+            return redirect(url_for('testimonials'))
+            
+        except:
+            flash('whoops, ada masalah untuk menghapus Testimoni, cobalagi')
+            return redirect(url_for('testimonials'))
+    else:
+        flash('Anda tidak berwenang untuk menghapus Testimoni ini')
+        return redirect(url_for('testimonials'))
+
+
+# Show Testimoni
+@app.route('/testimonials', methods=['GET','POST'])
+def testimonials():
+    testimoni = Testimonials.query.order_by(Testimonials.date_posted.desc())
+    form = TestimoniForm()
+    
+    if form.validate_on_submit():
+        penulis = current_user.id
+        tambahTestimoni = Testimonials(content=form.content.data, penulis_id=penulis)
+        # Clear form
+        form.content.data = ''
+        # add to db
+        db.session.add(tambahTestimoni)
+        db.session.commit()
+            
+        flash("Testimoni submitted successfully")
+        redirect (url_for('testimonials'))
+        # return render_template('testimoni.html',form=form, testimoni=testimoni, judul='Testimonial')
+        
+    # grab all journals from db
+    return render_template('testimoni.html',form=form, testimoni=testimoni, judul='Testimonial')
+
+# create add testimonial page
+@app.route('/add_testimoni', methods=['GET','POST'])
+@login_required
+def add_testimoni():
+    form = TestimoniForm()
+    
+    if form.validate_on_submit():
+        penulis = current_user.id
+        testimoni = Testimonials(content=form.content.data, penulis_id=penulis)
+        # Clear form
+        form.content.data = ''
+        # add to db
+        db.session.add(testimoni)
+        db.session.commit()
+        
+        flash("Testimoni submitted successfully")
+        return redirect( url_for('testimonials'))
+        
+    return render_template('add_testimoni.html', form=form, judul='Tambah Testimoni')
+
 # create journal page
 @app.route('/add_journal', methods=['GET','POST'])
 @login_required
@@ -221,6 +295,7 @@ def add_journal():
         flash("Journal submitted successfully")
         
     return render_template('add_journal.html', form=form, judul='Add Journal')
+
 
 @app.route('/journals')
 def journals():
@@ -402,11 +477,14 @@ def add_user():
 # route decorateor
 @app.route('/')
 def index():
+    testimoni = Testimonials.query.order_by(Testimonials.date_posted.desc())
+
     first_name = "kevin"
     stuff = "This is <strong>Bold</strong> text"
     favorite_martabak = ['Coklat','Kacang','Keju','Susu',47]
     return render_template('index.html',
                            judul='Home',
+                           testimoni=testimoni,
                            first_name=first_name,
                            stuff=stuff,
                            favorite_martabak=favorite_martabak)
@@ -475,6 +553,15 @@ def name():
                            form = form)
     
 # Create a Journal model
+class Testimonials(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text)
+    # author = db.Column(db.String(255))
+    date_posted = db.Column(db.DateTime, default=datetime.utcnow)
+    # foreign key to link users , refer to primary key from users
+    penulis_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    
+# Create a Journal model
 class Journals(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255))
@@ -503,6 +590,7 @@ class Users(db.Model, UserMixin):
     
     # user can have many journals
     journals = db.relationship('Journals', backref='penulis')
+    testimonials = db.relationship('Testimonials', backref='penulis')
     
     # Token for reset
     def get_token(self, expires_in=300):
