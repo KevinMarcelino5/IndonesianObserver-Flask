@@ -146,7 +146,8 @@ def search():
                                searched=journal.searched,
                                journals=journals,
                                searched_testimoni=testimonials.searched,
-                               testimoni=testimoni)
+                               testimoni=testimoni,
+                               judul='Mencari "'+form.searched.data+'"')
 
 # create login page
 @app.route('/login', methods=['GET','POST'])
@@ -207,7 +208,7 @@ def delete_journal(id):
         return render_template('journals.html', journals=journals)
 
     
-# Delete Journal
+# Delete Testimonial
 @app.route('/testimonials/delete/<int:id>')
 @login_required
 def delete_testimonials(id):
@@ -221,13 +222,16 @@ def delete_testimonials(id):
             
             flash('Testimoni sudah dihapus')
             return redirect(url_for('testimonials'))
+            # return render_template('testimoni.html')
             
         except:
             flash('whoops, ada masalah untuk menghapus Testimoni, cobalagi')
+            # return render_template('testimoni.html')
             return redirect(url_for('testimonials'))
     else:
         flash('Anda tidak berwenang untuk menghapus Testimoni ini')
-        return redirect(url_for('testimonials'))
+        # return render_template('testimoni.html')
+        # return redirect(url_for('testimonials'))
 
 
 # Show Testimoni
@@ -551,6 +555,17 @@ def name():
                            judul='Name',
                            name = name,
                            form = form)
+    
+# Create a Journal model
+class LayananKami(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text)
+    title = db.Column(db.String(255))
+    subtitle = db.Column(db.String(255))
+    # author = db.Column(db.String(255))
+    # date_posted = db.Column(db.DateTime, default=datetime.utcnow)
+    # foreign key to link users , refer to primary key from users
+    # penulis_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     
 # Create a Journal model
 class Testimonials(db.Model):
