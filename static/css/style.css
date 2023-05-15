@@ -33,3 +33,17 @@ body{
     /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
     background: linear-gradient(to right bottom, rgb(211 50 66), rgb(229 98 85 / 94%))
     }
+
+.module-border-wrap {
+    /* max-width: 250px; */
+    /* padding: 1rem; */
+    /* position: relative; */
+    background: linear-gradient(to right bottom, rgb(221, 60, 55), rgb(229 98 85 / 94%));
+    padding: 5px;
+    border-radius: 1.5em;
+    }
+    
+.module {
+    background: #f5f5f5;
+    border-radius: 1.4em;
+}

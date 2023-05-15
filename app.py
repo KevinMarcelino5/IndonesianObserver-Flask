@@ -175,39 +175,177 @@ def logout():
     flash('you have been logged out! Terima kasih sudah mampir')
     return redirect(url_for('login'))
 
+
 # create dashboard page
 @app.route('/dashboard', methods=['GET','POST'])
 @login_required
 def dashboard():
     return render_template('dashboard.html', judul='Dashboard')
-
-    
-# Delete Journal
-@app.route('/journals/delete/<int:id>')
+ 
+     
+# update edukasi
+@app.route('/edukasi/edit/<int:id>', methods=['GET','POST'])
 @login_required
-def delete_journal(id):
-    journal_to_delete = Journals.query.get_or_404(id)
-    id = current_user.id
+def edit_edukasi(id):
+    edukasi = Edukasi.query.get_or_404(id)
+    form = EdukasiForm()
     
-    if id == journal_to_delete.penulis.id:
+    if form.validate_on_submit():
+        edukasi.title = form.title.data
+        edukasi.subtitle = form.subtitle.data
+        edukasi.content = form.content.data
+        # update database
+        db.session.add(edukasi)
+        db.session.commit()
+        flash('Layanan has been edited')
+        return redirect( url_for('edukasi', id=edukasi.id) )
+    
+    if current_user.admin:
+        form.title.data = edukasi.title
+        form.subtitle.data = edukasi.subtitle
+        form.content.data = edukasi.content
+        return render_template('edit_edukasi.html', form=form)
+    else:
+        flash('Anda tidak berwenang untuk menyunting halaman ini')
+        return redirect(url_for('edukasi'))
+  
+# Delete Layanan
+@app.route('/edukasi/delete/<int:id>')
+@login_required
+def delete_edukasi(id):
+    edukasi_to_delete = Edukasi.query.get_or_404(id)
+    
+    if current_user.admin:
         try:
-            db.session.delete(journal_to_delete)
+            db.session.delete(edukasi_to_delete)
             db.session.commit()
             
-            flash('jurnal sudah dihapus')
-            journals = Journals.query.order_by(Journals.id)
-            return render_template('journals.html', journals=journals)
+            flash('Edukasi sudah dihapus')
+            return redirect( url_for('edukasi'))
             
         except:
-            flash('whoops, ada masalah untuk menghapus jurnal, cobalagi')
-            journals = Journals.query.order_by(Journals.id)
-            return render_template('journals.html', journals=journals)
+            flash('whoops, ada masalah untuk menghapus edukasi, cobalagi')
+            return redirect( url_for('edukasi'))
     else:
         flash('Anda tidak berwenang untuk menghapus journal ini')
-        journals = Journals.query.order_by(Journals.id)
-        return render_template('journals.html', journals=journals)
+        return redirect( url_for('edukasi'))
+
+# lihat edukasi
+@app.route('/edukasi/<int:id>')
+def poinEdukasi(id):
+    edukasi = Edukasi.query.get_or_404(id)
+    return render_template('poinEdukasi.html', edukasi=edukasi, judul=edukasi.title)
+ 
+# Show edukasi
+@app.route('/edukasi', methods=['GET','POST'])
+def edukasi():
+    edukasi = Edukasi.query.order_by(Edukasi.id.desc())
+    return render_template('edukasi.html', edukasi=edukasi, judul='Edukasi')
+
+# create add edukasi page
+@app.route('/add_edukasi', methods=['GET','POST'])
+@login_required
+def add_edukasi():
+    form = EdukasiForm()
+    
+    if form.validate_on_submit():
+        edukasi = Edukasi(title=form.title.data, subtitle=form.subtitle.data, content=form.content.data)
+        # Clear form
+        form.title.data = ''
+        form.subtitle.data = ''
+        form.content.data = ''
+        # add to db
+        db.session.add(edukasi)
+        db.session.commit()
+        
+        flash("Layanan submitted successfully")
+        return redirect( url_for('index'))
+        
+    return render_template('add_Edukasi.html', form=form, judul='Tambah Edukasi')
 
     
+    
+# update layanan
+@app.route('/layanan/edit/<int:id>', methods=['GET','POST'])
+@login_required
+def edit_layanan(id):
+    layanan = LayananKami.query.get_or_404(id)
+    form = LayananForm()
+    
+    if form.validate_on_submit():
+        layanan.title = form.title.data
+        layanan.subtitle = form.subtitle.data
+        layanan.content = form.content.data
+        # update database
+        db.session.add(layanan)
+        db.session.commit()
+        flash('Layanan has been edited')
+        return redirect( url_for('layanan', id=layanan.id) )
+    
+    if current_user.admin:
+        form.title.data = layanan.title
+        form.subtitle.data = layanan.subtitle
+        form.content.data = layanan.content
+        return render_template('edit_layanan.html', form=form)
+    else:
+        flash('Anda tidak berwenang untuk menyunting halaman ini')
+        return redirect(url_for('layananKami'))
+  
+# Delete Layanan
+@app.route('/layanan/delete/<int:id>')
+@login_required
+def delete_layanan(id):
+    layanan_to_delete = LayananKami.query.get_or_404(id)
+    
+    if current_user.admin:
+        try:
+            db.session.delete(layanan_to_delete)
+            db.session.commit()
+            
+            flash('layanan sudah dihapus')
+            return redirect( url_for('layanan'))
+            
+        except:
+            flash('whoops, ada masalah untuk menghapus layanan, cobalagi')
+            return redirect( url_for('layanan'))
+    else:
+        flash('Anda tidak berwenang untuk menghapus journal ini')
+        return redirect( url_for('layanan'))
+
+# lihat layanan
+@app.route('/layanan/<int:id>')
+def layanan(id):
+    layanan = LayananKami.query.get_or_404(id)
+    return render_template('layanan.html', layanan=layanan, judul=layanan.title)
+ 
+# Show Layanan
+@app.route('/layanan', methods=['GET','POST'])
+def layananKami():
+    layanan = LayananKami.query.order_by(LayananKami.id.desc())
+    return render_template('layananKami.html', layanan=layanan, judul='Layanan Kami')
+
+# create add layanan page
+@app.route('/add_layanan', methods=['GET','POST'])
+@login_required
+def add_layanan():
+    form = LayananForm()
+    
+    if form.validate_on_submit():
+        layanan = LayananKami(title=form.title.data, subtitle=form.subtitle.data, content=form.content.data)
+        # Clear form
+        form.title.data = ''
+        form.subtitle.data = ''
+        form.content.data = ''
+        # add to db
+        db.session.add(layanan)
+        db.session.commit()
+        
+        flash("Layanan submitted successfully")
+        return redirect( url_for('layananKami'))
+        
+    return render_template('add_layanan.html', form=form, judul='Tambah Layanan')
+
+
 # Delete Testimonial
 @app.route('/testimonials/delete/<int:id>')
 @login_required
@@ -303,7 +441,7 @@ def add_journal():
 
 @app.route('/journals')
 def journals():
-    journals = Journals.query.order_by(Journals.date_posted)
+    journals = Journals.query.order_by(Journals.date_posted.desc())
     # grab all journals from db
     return render_template('journals.html', journals=journals, judul='Journals')
 
@@ -311,7 +449,30 @@ def journals():
 def journal(id):
     journal = Journals.query.get_or_404(id)
     return render_template('journal.html', journal=journal, judul='Journal')
+    
+# Delete Journal
+@app.route('/journals/delete/<int:id>')
+@login_required
+def delete_journal(id):
+    journal_to_delete = Journals.query.get_or_404(id)
+    id = current_user.id
+    
+    if id == journal_to_delete.penulis.id or current_user.admin:
+        try:
+            db.session.delete(journal_to_delete)
+            db.session.commit()
+            
+            flash('jurnal sudah dihapus')
+            return redirect( url_for('journals'))
+            
+        except:
+            flash('whoops, ada masalah untuk menghapus jurnal, cobalagi')
+            return redirect( url_for('journals'))
+    else:
+        flash('Anda tidak berwenang untuk menghapus journal ini')
+        return redirect( url_for('journals'))
 
+    
 # update journal
 @app.route('/journals/edit/<int:id>', methods=['GET','POST'])
 @login_required
@@ -330,7 +491,7 @@ def edit_journal(id):
         flash('Journal has been edited')
         return redirect( url_for('journal', id=journal.id) )
     
-    if current_user.id == journal.penulis_id:
+    if current_user.id == journal.penulis_id or current_user.admin:
         form.title.data = journal.title
         # form.author.data = journal.author
         form.slug.data = journal.slug
@@ -556,16 +717,20 @@ def name():
                            name = name,
                            form = form)
     
-# Create a Journal model
+# Create a Edukasi model
+class Edukasi(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text)
+    title = db.Column(db.String(255))
+    subtitle = db.Column(db.String(255))
+    
+    
+# Create a Layanan model
 class LayananKami(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     content = db.Column(db.Text)
     title = db.Column(db.String(255))
     subtitle = db.Column(db.String(255))
-    # author = db.Column(db.String(255))
-    # date_posted = db.Column(db.DateTime, default=datetime.utcnow)
-    # foreign key to link users , refer to primary key from users
-    # penulis_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     
 # Create a Journal model
 class Testimonials(db.Model):

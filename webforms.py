@@ -28,11 +28,19 @@ class ResetPasswordForm(FlaskForm):
     submit = SubmitField('Change Password')
     
        
+# create Edukasi form
+class EdukasiForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired(), Length(max=300, message='Tidak lebih dari 300 karakter')])
+    subtitle = StringField('Subtitle', validators=[DataRequired(), Length(max=300, message='Tidak lebih dari 300 karakter')])
+    content = CKEditorField('Testimoni', validators=[DataRequired()])
+    # content = CKEditorField('Journal', validators=[DataRequired()])
+    submit = SubmitField('Submit')
+       
 # create LayananForm form
 class LayananForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired(), Length(max=300, message='Tidak lebih dari 300 karakter')])
     subtitle = StringField('Subtitle', validators=[DataRequired(), Length(max=300, message='Tidak lebih dari 300 karakter')])
-    content = StringField('Testimoni', validators=[DataRequired()])
+    content = CKEditorField('Testimoni', validators=[DataRequired()])
     # content = CKEditorField('Journal', validators=[DataRequired()])
     submit = SubmitField('Submit')
        

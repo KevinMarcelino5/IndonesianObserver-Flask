@@ -23,7 +23,7 @@
                           <div class="col-md-4 gradient-custom text-center text-white"
                             style="border-top-left-radius: 1rem; border-bottom-left-radius: 1rem;">
                             {% if current_user.profile_pic %}
-                              <img src="{{ url_for('static', filename='img/' + current_user.profile_pic )}}" alt="Avatar" class="img-fluid my-5" style="width: 80px;" />
+                              <img src="{{ url_for('static', filename='img/' + current_user.profile_pic )}}" alt="Avatar" class="img-fluid my-5 rounded-circle" style="width: 100px;" />
                             {% else %}
                               <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava1-bg.webp" alt="Avatar" class="img-fluid my-5" style="width: 80px;" />
                             {% endif %}

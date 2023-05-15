@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container">
+
+    {% for message in get_flashed_messages() %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <strong>{{ name }}</strong> {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+
+
+    <section>
+        <div class="container py-5">
+            <div class="mx-auto" style="max-width: 900px;">
+                <div class="col-md-8 col-xl-6 text-center mx-auto">
+                    <p class="fw-bold text-danger mb-2">Edukasi</p>
+                    <!-- <h3 class="fw-bold">What you can learn</h3> -->
+                    <h3 class="fw-bold">yang dapat anda pelajari</h3>
+                    {% if current_user.admin %}
+                    <a href="{{url_for('add_edukasi')}}" class="btn btn-outline-danger btn-sm">Tambah Edukasi</a>
+                    {% endif %}
+                </div>
+                <div class="row row-cols-1 row-cols-md-2 d-flex justify-content-center">
+                    {% for edukasi in edukasi %}
+                    <div class="col mb-4">
+                        <div class="card module-border-wrap">
+                            <div class="card-body text-center text-dark px-4 py-5 px-md-5 module">
+                                <h5 class="fw-bold text-primary card-title mb-2">{{ edukasi.title }}</h5>
+                                <p class="fw-bold card-text mb-3">{{ edukasi.subtitle }}</p>
+                                <a class="btn btn-primary btn-sm" type="button" href="{{url_for('poinEdukasi', id=edukasi.id)}}">Learn more</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+        
+
+
+</div>
+
+
+{% endblock %}
