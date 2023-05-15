@@ -9,7 +9,8 @@ from werkzeug.utils import secure_filename
 import uuid as uuid
 import os
 from flask_mail import Mail, Message
-from itsdangerous.jws import TimedJSONWebSignatureSerializer as Serializer
+# from itsdangerous.jws import TimedJSONWebSignatureSerializer as Serializer
+from itsdangerous.url_safe import URLSafeTimedSerializer as Serializer
 import sshtunnel
 from webforms import *
 
@@ -39,8 +40,10 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:1234@localhost/our
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'filousom@gmail.com'
-app.config['MAIL_PASSWORD'] = 'ttjqpeyydwwfxjwp'
+# app.config['MAIL_USERNAME'] = 'filousom@gmail.com'
+app.config['MAIL_USERNAME'] = 'indonesianobserver0@gmail.com'
+# app.config['MAIL_PASSWORD'] = 'ttjqpeyydwwfxjwp'
+app.config['MAIL_PASSWORD'] = 'slllzvasokkrqkre'
 mail=Mail(app)
     
 # secret key
@@ -773,9 +776,9 @@ class Users(db.Model, UserMixin):
     testimonials = db.relationship('Testimonials', backref='penulis')
     
     # Token for reset
-    def get_token(self, expires_in=300):
-        serial = Serializer(app.config['SECRET_KEY'], expires_in=expires_in)
-        return serial.dumps({'user_id':self.id}).decode('utf-8')
+    def get_token(self):
+        serial = Serializer(app.config['SECRET_KEY'])
+        return serial.dumps({'user_id':self.id})
     
     @staticmethod
     def verify_token(token):
