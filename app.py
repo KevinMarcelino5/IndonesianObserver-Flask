@@ -1,3 +1,4 @@
+from json import dump
 from flask import Flask, render_template, flash, request, redirect, url_for
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
@@ -356,7 +357,7 @@ def delete_testimonials(id):
     testimoni_to_delete = Testimonials.query.get_or_404(id)
     id = current_user.id
     
-    if id == testimoni_to_delete.penulis.id:
+    if id == testimoni_to_delete.penulis.id or current_user.admin:
         try:
             db.session.delete(testimoni_to_delete)
             db.session.commit()
@@ -604,6 +605,7 @@ def add_user():
     if form.validate_on_submit():
         user = Users.query.filter_by(email=form.email.data).first()
         username = Users.query.filter_by(username=form.username.data).first()
+        print(username)
         if (user or username) is None:
             # hash password
             hashed_pw= generate_password_hash(form.password_hash.data, 'sha256')
@@ -657,10 +659,25 @@ def index():
                            stuff=stuff,
                            favorite_martabak=favorite_martabak)
 
-# @app.route('/user/<name>')
-# def user(name):
-#     name='golojo'
-#     return render_template("user.html", name=name, judul='user name')
+# @app.route('/user/<int:id>')
+# def user(id):
+#     carinama= Users.query.get_or_404(id)
+#     # print(dump(carinama))
+#     if carinama:
+#         namanya = carinama.name
+#         return render_template("user.html", namanya=namanya, judul='user name')
+#     else:
+#         flash('user tidak ditemukan')
+#         return redirect(url_for('index'))
+@app.route('/user/<username>')
+def user(username):
+    teman= Users.query.filter_by(username=username).first()
+    # print(dump(carinama))
+    if teman:
+        return render_template("user.html", teman=teman, judul=teman.name)
+    else:
+        flash('user tidak ditemukan')
+        return redirect(url_for('index'))
 
 # custom error page
 

@@ -2,6 +2,13 @@
     background-color: #f1f1f1;
 }
 
+.kev-text-orange {
+    color: #ff6d66;
+}
+.kev-text-link {
+    text-decoration: none;
+}
+
 p.journal-content {
     width: auto;
     height:60px;
